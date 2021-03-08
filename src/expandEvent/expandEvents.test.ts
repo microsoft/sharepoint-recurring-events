@@ -149,7 +149,7 @@ const monthRecurringEvent = {
   "Title": "mothly recurring event",
   "Location": null,
   "EventDate": "2021-02-06T10:00:00Z",
-  "EndDate": "2021-11-06T10:00:00Z",
+  "EndDate": "2021-11-16T10:00:00Z",
   "Description": "<p>​Day 5 of every month<br></p>",
   "fAllDayEvent": false,
   "fRecurrence": true,
