@@ -52,25 +52,9 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
   if(!!dailyNode) {
     const dayFreq: number = parseInt(dailyNode.getAttribute('dayFrequency')!);
     if(!!dayFreq) {
-      const recurStart = new Date(startDate.toString());
-      let total = 0;
-      // while((recurStart.getTime() < endDate.getTime()
-      //   && (!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())))
-      //   && (rTotal === 0 || rTotal > total)) {
-      while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
-        // probably need to put something here, move the date forward and increse total.  "Increment" the loop conditions
-        if(recurStart.getTime() >= startDate.getTime() 
-          && (!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime()))) { // put start bound check here? or maybe I just set recurStart to it, if it's further in the future than event.EventDate...
-
-          const newStart = new Date(recurStart.toString());
-          const newEvent = createNewEvent(event, newStart);
-          eventReturn.push(newEvent);
-          
-        }
-        // loop "increment" statements, should happen every iteration
-        total++;
-        recurStart.setDate(recurStart.getDate() + dayFreq);
-      }
+      // -- usage example -- the simplest example... not sure if this is generic enough to work for all of them
+      return Array.from(dateGen(startDate, endDate, bounds, rTotal, d => {const upD = new Date(d); upD.setDate(upD.getDate()+ dayFreq); return upD;}))
+        .map(start => createNewEvent(event, start));
     }
     else if(dailyNode.hasAttribute('weekday') && dailyNode.getAttribute('weekday') === 'TRUE') {
       const weekly = setAttributes(document.createElement('weekly'), [
@@ -317,3 +301,27 @@ export const isNotAtEnd = (recurStart: Date, endDate: Date, endBound: Date | nul
 
 
 export { expandEvent, ispe };
+
+
+/// --- potential generic Generator Function for start date creation
+const dateGen = function* (startDate: Date, endDate: Date, bounds: IBounds, rTotal: number, updateFn: ((d: Date) => Date)) {
+  let total = 0;
+  let iterDate = new Date(startDate);
+  while(isNotAtEnd(iterDate, endDate, bounds.end, rTotal, total)) {
+    // probably need to put something here, move the date forward and increse total.  "Increment" the loop conditions
+    if(iterDate.getTime() >= startDate.getTime() 
+      && (!bounds.start || (bounds.start && iterDate.getTime() >= bounds.start.getTime()))) {
+
+      const newStart = new Date(iterDate);
+      yield newStart;
+      // const newEvent = createNewEvent(event, newStart);
+      // eventReturn.push(newEvent);
+      
+    }
+    // loop "increment" statements, should happen every iteration
+    total++;
+    iterDate = updateFn(iterDate);
+    // iterDate.setDate(iterDate.getDate() + dayFreq);
+  }
+  return;
+};
