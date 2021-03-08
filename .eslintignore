@@ -1,0 +1,19 @@
+# don't ever lint node_modules
+node_modules
+# don't lint build output (make sure it's set to your correct build folder name)
+dist
+# don't lint nyc coverage output
+coverage
+temp
+lib
+jest
+*.d.ts
+*.scss.ts
+package.json
+
+# don't lint configuration files
+gulpfile.js
+.eslintrc.js
+index.test.ts
+just-task.js
+jest.config.js
