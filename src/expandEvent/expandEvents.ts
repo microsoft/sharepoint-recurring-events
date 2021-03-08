@@ -53,7 +53,7 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
     const dayFreq: number = parseInt(dailyNode.getAttribute('dayFrequency')!);
     if(!!dayFreq) {
       // -- usage example -- the simplest example... not sure if this is generic enough to work for all of them
-      return Array.from(dateGen(startDate, endDate, bounds, rTotal, d => {const upD = new Date(d); upD.setDate(upD.getDate()+ dayFreq); return upD;}))
+      return Array.from(dateGen(startDate, endDate, bounds, rTotal, getNextDay(dayFreq)))
         .map(start => createNewEvent(event, start));
     }
     else if(dailyNode.hasAttribute('weekday') && dailyNode.getAttribute('weekday') === 'TRUE') {
@@ -324,4 +324,16 @@ const dateGen = function* (startDate: Date, endDate: Date, bounds: IBounds, rTot
     // iterDate.setDate(iterDate.getDate() + dayFreq);
   }
   return;
+};
+
+/**
+ * type of curried funtion with data-last style.
+ * clones Date d
+ * @param dayInterval interval until next day
+ * @param d date to increase by dayInterval
+ */
+const getNextDay = (dayInterval: number) => (d: Date) => {
+  const nextDay = new Date(d); // clone date object
+  nextDay.setDate(nextDay.getDate()+ dayInterval);
+  return nextDay;
 };
