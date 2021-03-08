@@ -30,11 +30,5 @@ jobs:
           node-version: 10.19.0
       - run: npm ci
       - run: npm run build
-      - run: npm run test > unit-test.log
-      - uses: actions/upload-artifact@v2
-        with:
-          name: unit test log
-          path: unit-test.log
-          if-no-files-found: 'warn'
-          retention-days: 30
+      - run: npm run test
       
