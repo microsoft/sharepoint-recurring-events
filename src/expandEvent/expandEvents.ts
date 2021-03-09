@@ -3,6 +3,7 @@
  * all other exports are for testing purposes
 */
 import { unescape, cloneDeep } from 'lodash';
+
 const NUMBER_OF_WEEKDAYS = 7;
 const MONTH_OFFSET = 1;
 const DEFAULT_RECURRENCE_TOTAL = 0;
@@ -25,9 +26,8 @@ interface IBounds {
 }
 
 const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, end: null}): T[] => {
-  // if it's not a recurring event, just return it
+  // if it's not a recurring event, just lift and return
   if(!event.fRecurrence || event.RecurrenceData === null) return [event];
-
 
   const weekDays = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa'];
   const weekOfMonths = ['first', 'second', 'third', 'fourth'];
@@ -39,10 +39,7 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
     : new Date(event.EventDate);
   const endDate = new Date(event.EndDate);
   const xmlDom = (new DOMParser()).parseFromString(unescape(event.RecurrenceData), 'text/xml');
-
-
-  const eventReturn: T[] = []; // still pushed to
-
+  const eventReturn: T[] = [];
   const repeatInstances = xmlDom.querySelector('repeatInstances');
   const rTotal = !!repeatInstances ? parseInt(repeatInstances.textContent!) : DEFAULT_RECURRENCE_TOTAL;
 
@@ -54,13 +51,10 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
     if(!!dayFreq) {
       const recurStart = new Date(startDate.toString());
       let total = 0;
-      // while((recurStart.getTime() < endDate.getTime()
-      //   && (!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())))
-      //   && (rTotal === 0 || rTotal > total)) {
       while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
         // probably need to put something here, move the date forward and increse total.  "Increment" the loop conditions
         if(recurStart.getTime() >= startDate.getTime() 
-          && (!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime()))) { // put start bound check here? or maybe I just set recurStart to it, if it's further in the future than event.EventDate...
+          && (!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime()))) {
 
           const newStart = new Date(recurStart.toString());
           const newEvent = createNewEvent(event, newStart);
@@ -87,15 +81,11 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
 
   const weeklyNode = xmlDom.querySelector('weekly');
   if(!!weeklyNode) {
-
     // uppercase for weekly from SharePoint, lower case for "weekday" recurrence, node set above ^^
     const weekFreq = parseInt(weeklyNode.getAttribute('weekFrequency') || weeklyNode.getAttribute('weekfrequency')!);
     const recurStart = new Date(startDate.toString()); // date still modified
     let recurDay = recurStart.getDay();
     let total = 0;
-    // while((recurStart.getTime() <= endDate.getTime())
-    //   && (!bounds.end || (bounds.end && recurStart <= bounds.end))
-    //   && (rTotal === 0 || rTotal > total)) {
     while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
 
       // every time week is incremented by freq, check every weekday (su-sa) to create all events for the week
@@ -128,9 +118,6 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
     let total = 0;
     
     if(!!monthFreq) {
-      // while((recurStart.getTime() < endDate.getTime())
-      //   &&(!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())) 
-      //   && (rTotal === 0 || rTotal > total)) {
       while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
         if(recurStart.getTime() >= startDate.getTime()) {
           const newStart = new Date(recurStart.toString());
@@ -142,7 +129,7 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
           }
         }
         // loop increment statements
-        total++; // should this only be updated if the above if statement succeeds?
+        total++;
         recurStart.setMonth(recurStart.getMonth() + monthFreq);
       }
     }
@@ -150,8 +137,6 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
 
   const monthlyByDayNode = xmlDom.querySelector('monthlyByDay');
   if(!!monthlyByDayNode) {
-
-    // montly copy-paste from yearlyByDay
     const monthFreq = parseInt(monthlyByDayNode.getAttribute('monthFrequency')!);
     const weekdayOfMonth = monthlyByDayNode.getAttribute('weekdayOfMonth')!;
     const day: number = weekDays.reduce((acc, d, index) => // find which day attribute is present, I think only one can be present
@@ -162,22 +147,19 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
     const recurStart = new Date(startDate.toString());
     let total = 0;
 
-    // while((recurStart.getTime() < endDate.getTime())
-    //   && (!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())) 
-    //   && (rTotal === 0 || rTotal > total)) {
     while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
 
       let newStart = new Date(recurStart.toString());
-      if(recurStart.getTime() >= startDate.getTime()) { // add start bound here, I think?
+      if(recurStart.getTime() >= startDate.getTime()) {
 
-        total++; // this should be updated when outside bounds, but not recurStart
-        if(!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime())) { // add start bound here, I think?
+        total++;
+        if(!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime())) {
           newStart.setDate(FIRST_DAY_OF_MONTH);
           const dayOfMonth = newStart.getDay();
           if (day < dayOfMonth) newStart.setDate(newStart.getDate() + ((NUMBER_OF_WEEKDAYS - dayOfMonth) + day)); //first instance of this day in the selected month
           else newStart.setDate(newStart.getDate() + (day - dayOfMonth));
           // find the date
-          if(weekdayOfMonth === 'last') { // needs tested
+          if(weekdayOfMonth === 'last') {
             const temp = new Date(newStart.toString());
             while(temp.getMonth() === recurStart.getMonth()) {
               newStart = new Date(temp.toString());
@@ -200,17 +182,14 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
 
   const yearlyNode = xmlDom.querySelector('yearly');
   if(!!yearlyNode) {
-    // mostly copy-paste from monthly
     const yearFreq = parseInt(yearlyNode.getAttribute('yearFrequency')!);
-    const month = parseInt(yearlyNode.getAttribute('month')!) - MONTH_OFFSET; // months are zero-based in javascript, but one-based in SharePoint
+    // months are zero-based in javascript, but one-based in SharePoint
+    const month = parseInt(yearlyNode.getAttribute('month')!) - MONTH_OFFSET;
     const day = parseInt(yearlyNode.getAttribute('day')!);
     const recurStart = new Date(startDate.toString()); // date still modified
     let total = 0;
     
     if(!!yearFreq) {
-      // while((recurStart.getTime() < endDate.getTime()) 
-      //   && (!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())) 
-      //   && (rTotal === 0 || rTotal > total)) {
       while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
         if(recurStart.getTime() >= startDate.getTime()
         && (!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime()))) {
@@ -241,23 +220,19 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
         : acc
       , SUNDAY);
     let total = 0;
-    // I think this is the exact same check for _every single_ recurrence type
-    // while((recurStart.getTime() < endDate.getTime())
-    //   && (!bounds.end || (bounds.end && recurStart.getTime() < bounds.end.getTime())) 
-    //   && (rTotal === 0 || rTotal > total)) {
     while(isNotAtEnd(recurStart, endDate, bounds.end, rTotal, total)) {
 
       let newStart = new Date(recurStart.toString());
       newStart.setMonth(month);
-      if(recurStart.getTime() >= startDate.getTime()) { // this _should always_ be true
-        total++; // loop incrementing, could this be moved to the bottom?  Or does it depend on the above conditional?
+      if(recurStart.getTime() >= startDate.getTime()) { // this _should always_ be true, but check anyway
+        total++;
         if(!bounds.start || (bounds.start && recurStart.getTime() >= bounds.start.getTime())) { // add start bound here, I think?
           newStart.setDate(FIRST_DAY_OF_MONTH);
           const dayOfMonth = newStart.getDay();
           if (day < dayOfMonth) newStart.setDate(newStart.getDate() + ((NUMBER_OF_WEEKDAYS - dayOfMonth) + day)); //first instance of this day in the selected month
           else newStart.setDate(newStart.getDate() + (day - dayOfMonth));
           // find the date
-          if(weekOfMonth === 'last') { // needs tested
+          if(weekOfMonth === 'last') {
             const temp = new Date(newStart.toString());
             while(temp.getMonth() === month) {
               newStart = new Date(temp.toString());
@@ -268,8 +243,6 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
           }
 
           if(newStart.getMonth() === month) {  // make sure it's still the same month
-            // within this if statement seems to be everything that is shared between
-            // types of recurrences, and could probably be moved out into a separate function
             const newEvent = createNewEvent(event, newStart);
             eventReturn.push(newEvent);
           }
@@ -287,7 +260,7 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
 
 
 /** sets all of the listed attributes (attrs) on Element e  */
-export const setAttributes = (e: Element, attrs: [string, string][]): Element => {
+export const setAttributes = <E extends Element>(e: E, attrs: [string, string][]): E => {
   attrs.forEach(([key, value]) => {
     e.setAttribute(key, value);
   });
@@ -310,6 +283,15 @@ export const createNewEvent = <T extends ispe>(oldEvent: T, newStart: Date): T =
   return newEvent;
 };
 
+/**
+ * check for expand event function to determine if all recurrences of a recurring
+ * event have already been calculated or not
+ * @param recurStart the start of the event in the current recurrence iteration
+ * @param endDate the end date of the recurring event (event.EndDate)
+ * @param endBound the end bound of the recurring calculation (bounds.end)
+ * @param recurrenceTotal the number of recurrences of the event (if set)
+ * @param total the total number of events created (to be compared against recurrenceTotal)
+ */
 export const isNotAtEnd = (recurStart: Date, endDate: Date, endBound: Date | null, recurrenceTotal: number, total: number): boolean =>
   (recurStart.getTime() < endDate.getTime())
   && (!endBound || (endBound && recurStart.getTime() < endBound.getTime())) 
