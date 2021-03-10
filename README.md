@@ -1,18 +1,8 @@
-# sp-recurring-events
+# sharepoint-recurring-events
 
 The purpose of this package is to help us work with recurring events in SharePoint.  This is necessary because the SharePoint REST API endpoint does not expand events for us, but instead returns events with an XML based recurrence information.  This library takes that recurrence information and expands it to a list of events.
 
 Ideally, eventually this project will also allow for the reverse: creating recurring events with that same recurrence structure but in an easier to use API that will convert or build the XML structure for the user.
-
-> Project
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
-
-As the maintainer of this project, please make a few updates:
-
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
 
 ## Contributing
 
