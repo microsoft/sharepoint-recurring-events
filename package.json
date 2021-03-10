@@ -20,7 +20,9 @@
     "silent-test": "jest --config=./jest.config.js --reporters=\"jest-junit\" --coverageReporters=\"cobertura\"",
     "test": "just test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "4.17.21"
+  },
   "devDependencies": {
     "eslint": "7.5.0",
     "@typescript-eslint/eslint-plugin": "3.7.0",
@@ -29,7 +31,6 @@
     "gulp-eslint": "6.0.0",
     "@types/jest": "^25.2.3",
     "@types/lodash": "4.14.168",
-    "lodash": "4.17.21",
     "jest": "^25.5.4",
     "jest-junit": "^11.1.0",
     "jest-standard-reporter": "1.0.4",
