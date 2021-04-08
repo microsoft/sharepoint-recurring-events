@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/sharepoint-recurring-events",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Microsoft Corporation",
   "license": "MIT",
   "description": "Help work with recurring events in SharePoint",
@@ -9,6 +9,10 @@
     "url": "https://github.com/microsoft/sharepoint-recurring-events.git"
   },
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "/lib"
+  ],
   "scripts": {
     "start": "node ./lib/index.js",
     "build": "just build",
