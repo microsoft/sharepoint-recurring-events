@@ -9,6 +9,10 @@
     "url": "https://github.com/microsoft/sharepoint-recurring-events.git"
   },
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "/lib"
+  ],
   "scripts": {
     "start": "node ./lib/index.js",
     "build": "just build",
