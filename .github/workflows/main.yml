@@ -24,10 +24,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: read-node-version
+        run: echo "::set-output name=node_version::$(cat .node-version)"
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.19.0
+          node-version: ${{ steps.read-node-version.outputs.node_version }}
       - run: npm ci
       - run: npm run build
       - run: npm run test
