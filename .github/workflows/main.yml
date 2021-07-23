@@ -30,7 +30,8 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: ${{ steps.read-node-version.outputs.node_version }}
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
+      - run: npm i -g pnpm@^6
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run build
+      - run: pnpm run test
       
