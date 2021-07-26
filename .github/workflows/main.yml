@@ -24,11 +24,14 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: read-node-version
+        run: echo "node_version=$(cat .node-version)" >> $GITHUB_ENV
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.5
         with:
-          node-version: 10.19.0
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
+          node-version: ${{ env.node_version }}
+      - run: npm i -g pnpm@^6
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run build
+      - run: pnpm run test
       
