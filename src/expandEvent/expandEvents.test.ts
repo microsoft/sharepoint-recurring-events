@@ -8,7 +8,7 @@ import {
     expandEvent,
 } from './expandEvents';
 
-describe("expand events utitlity functions", () => {
+describe("expand events utility functions", () => {
     it('should be able to determine when we are at the end', () => {
         const start: Date = new Date('2021-03-16T00:00:00');
         const end: Date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
@@ -144,6 +144,25 @@ const dailyRecurringEvent = {
   "AttachmentFiles": [],
 };
 
+const marchRecurringEvent = {
+  "Id": 12,
+  "Title": "daily",
+  "Location": null,
+  "EventDate": "2022-03-28T00:00:00Z",
+  "EndDate": "2023-05-07T00:30:00Z",
+  "Description": "<p>​daily<br></p><p>every 1 day</p><p>start date&#58; 2/25/2021<br></p><p>end after 10 occurences<br></p>",
+  "fAllDayEvent": false,
+  "fRecurrence": true,
+  "Duration": 1800,
+  "RecurrenceData": "<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><daily dayFrequency=\"1\" /></repeat><repeatInstances>10</repeatInstances></rule></recurrence>",
+  "Category": "Holiday",
+  "BIC_DateSelection": "Specific Date",
+  "BIC_Contact": null,
+  "ID": 12,
+  "Attachments": false,
+  "AttachmentFiles": [],
+};
+
 const monthRecurringEvent = {
   "Id": 4,
   "Title": "mothly recurring event",
@@ -220,6 +239,25 @@ const weekDayEvent = {
   "AttachmentFiles": [],
 };
 
+const marchWeekDayEvent = {
+  "Id": 9,
+  "Title": "weekday recurring",
+  "Location": null,
+  "EventDate": "2022-03-24T20:00:00Z",
+  "EndDate": "2022-03-30T21:00:00Z",
+  "Description": null,
+  "fAllDayEvent": false,
+  "fRecurrence": true,
+  "Duration": 3600,
+  "RecurrenceData": "<recurrence><rule><firstDayOfWeek>su</firstDayOfWeek><repeat><daily weekday=\"TRUE\" /></repeat><repeatForever>FALSE</repeatForever></rule></recurrence>",
+  "Category": "Work hours",
+  "BIC_DateSelection": "Specific Date",
+  "BIC_Contact": null,
+  "ID": 9,
+  "Attachments": false,
+  "AttachmentFiles": [],
+};
+
 const yearByDayEvent = {
   "Id": 18,
   "Title": "year by day",
@@ -240,6 +278,23 @@ const yearByDayEvent = {
 };
 
 describe('expand events function', () => {
+    it('weekday events respect end dates when expanded', () => {
+        // daily recurrence events
+        const expandedEvents = expandEvent(marchRecurringEvent);
+        const expandedDates = expandedEvents.map(event => event.EventDate);
+        expect(expandedDates).not.toContain('2022-03-32T00:00:00.000Z')
+
+        // the daily weekday node creates a weekly node, so this checks for issue #11
+        // weekday recurrence with bounds
+        const expandedBoundedWeekdayEvents = expandEvent(marchWeekDayEvent, {end: new Date('2022-03-31T22:00:00Z'), start: null});
+        const expandedBoundedWeekdayDates = expandedBoundedWeekdayEvents.map(event => event.EventDate);
+        expect(expandedBoundedWeekdayDates).not.toContain('2022-04-01T20:00:00.000Z');
+
+        // weekday recurrence without bounds
+        const expandedWeekdayEvents = expandEvent(marchWeekDayEvent);
+        const expandedWeekdayDates = expandedWeekdayEvents.map(event => event.EventDate);
+        expect(expandedWeekdayDates).not.toContain('2022-04-01T20:00:00.000Z');
+    })
     it('daily recurrence', () => {
         const expandedEvents = expandEvent(dailyRecurringEvent);
         expect(expandedEvents.length).toBe(10); // eslint-disable-line no-magic-numbers
@@ -281,10 +336,13 @@ describe('expand events function', () => {
     });
     it('weekday recurrence', () => {
         const expandedEvents = expandEvent(weekDayEvent);
-        expect(expandedEvents.length).toBe(1000); // eslint-disable-line no-magic-numbers
+        expect(expandedEvents.length).toBe(999); // eslint-disable-line no-magic-numbers
+        expect(expandedEvents[expandedEvents.length - 1]).toMatchObject({EndDate: new Date(weekDayEvent.EndDate).toISOString()})
 
         const bounded = expandEvent(weekDayEvent, {start: new Date('2023-01-01T00:00:00Z'), end: new Date('2023-03-01T00:00:00Z')});
-        expect(bounded.length).toBe(45); // eslint-disable-line no-magic-numbers
+        
+        expect(bounded.length).toBe(42); // eslint-disable-line no-magic-numbers
+        expect(bounded[bounded.length - 1]).toMatchObject({EventDate: '2023-02-28T20:00:00.000Z'});
     });
     it('year by day recurrence', () => {
         const expandedEvents = expandEvent(yearByDayEvent);
