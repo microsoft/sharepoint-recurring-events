@@ -282,7 +282,7 @@ describe('expand events function', () => {
         // daily recurrence events
         const expandedEvents = expandEvent(marchRecurringEvent);
         const expandedDates = expandedEvents.map(event => event.EventDate);
-        expect(expandedDates).not.toContain('2022-03-32T00:00:00.000Z')
+        expect(expandedDates).not.toContain('2022-03-32T00:00:00.000Z');
 
         // the daily weekday node creates a weekly node, so this checks for issue #11
         // weekday recurrence with bounds
@@ -294,7 +294,7 @@ describe('expand events function', () => {
         const expandedWeekdayEvents = expandEvent(marchWeekDayEvent);
         const expandedWeekdayDates = expandedWeekdayEvents.map(event => event.EventDate);
         expect(expandedWeekdayDates).not.toContain('2022-04-01T20:00:00.000Z');
-    })
+    });
     it('daily recurrence', () => {
         const expandedEvents = expandEvent(dailyRecurringEvent);
         expect(expandedEvents.length).toBe(10); // eslint-disable-line no-magic-numbers
@@ -337,7 +337,7 @@ describe('expand events function', () => {
     it('weekday recurrence', () => {
         const expandedEvents = expandEvent(weekDayEvent);
         expect(expandedEvents.length).toBe(999); // eslint-disable-line no-magic-numbers
-        expect(expandedEvents[expandedEvents.length - 1]).toMatchObject({EndDate: new Date(weekDayEvent.EndDate).toISOString()})
+        expect(expandedEvents[expandedEvents.length - 1]).toMatchObject({EndDate: new Date(weekDayEvent.EndDate).toISOString()});
 
         const bounded = expandEvent(weekDayEvent, {start: new Date('2023-01-01T00:00:00Z'), end: new Date('2023-03-01T00:00:00Z')});
         
