@@ -7,7 +7,7 @@ Eventually, this project will also allow for the reverse: creating recurring eve
 ## Technical Contributing Info
 
 - package manager: [pnpm](https://pnpm.io/), because it provides the most control over our node modules and it is efficient with no hidden dependencies.
-- node version: as of this writing we use `12.22.1`, but check the [.node-version file](./.node-version) for the most up-to-date version.  We use this paired with [nvs](https://github.com/jasongin/nvs) to easily switch between versions of node on one machine.  And we stick to LTS version for the support.
+- node version: as of this writing we use `16.15.0`, but check the [.node-version file](./.node-version) for the most up-to-date version.  We use this paired with [nvs](https://github.com/jasongin/nvs) to easily switch between versions of node on one machine.  And we stick to LTS version for the support.
 
 ---
 
