@@ -294,6 +294,10 @@ describe('expand events function', () => {
         const expandedWeekdayEvents = expandEvent(marchWeekDayEvent);
         const expandedWeekdayDates = expandedWeekdayEvents.map(event => event.EventDate);
         expect(expandedWeekdayDates).not.toContain('2022-04-01T20:00:00.000Z');
+
+
+        const laterEndBound = expandEvent(marchWeekDayEvent, {end: new Date('2022-04-02T22:00:00Z'), start: null});
+        expect(laterEndBound.map(event => event.EventDate)).not.toContain('2022-04-01T20:00:00.000Z');
     });
     it('daily recurrence', () => {
         const expandedEvents = expandEvent(dailyRecurringEvent);

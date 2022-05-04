@@ -98,7 +98,8 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
 
             // start bound check, use newStart in case bound is in the middle of the week
             if((!bounds.start || (bounds.start && newStart.getTime() >= bounds.start.getTime()))
-            && ((!bounds.end && newStart.getTime() <= endDate.getTime()) || (bounds.end && newStart.getTime() <= bounds.end.getTime()))){
+            && newStart.getTime() <= endDate.getTime()
+            && (!bounds.end || (bounds.end && newStart.getTime() <= bounds.end.getTime()))){
               const newEvent = createNewEvent(event, newStart);
               eventReturn.push(newEvent);
             }
