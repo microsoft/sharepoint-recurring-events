@@ -96,7 +96,10 @@ const expandEvent = <T extends ispe>(event: T, bounds: IBounds = {start: null, e
             const newStart = new Date(recurStart.toString()); // create a copy of the loop Date
             newStart.setDate(newStart.getDate() + (index - recurDay)); // update the weekday
 
-            if(!bounds.start || (bounds.start && newStart.getTime() >= bounds.start.getTime())){ // start bound check, use newStart in case bound is in the middle of the week
+            // start bound check, use newStart in case bound is in the middle of the week
+            if((!bounds.start || (bounds.start && newStart.getTime() >= bounds.start.getTime()))
+            && newStart.getTime() <= endDate.getTime()
+            && (!bounds.end || (bounds.end && newStart.getTime() <= bounds.end.getTime()))){
               const newEvent = createNewEvent(event, newStart);
               eventReturn.push(newEvent);
             }
